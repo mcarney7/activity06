@@ -1,125 +1,127 @@
-import 'package:flutter/material.dart';
+import 'dart:io' show Platform; // Importing the Platform class to check the current platform (desktop, web, mobile)
+import 'package:flutter/foundation.dart' show kIsWeb; // kIsWeb is used to check if the app is running in a web environment
+import 'package:flutter/material.dart'; // Importing Flutter's Material library for UI components
+import 'package:provider/provider.dart'; // Importing the Provider package for state management
+
+// Commented out the import for window_size package since it's not needed for non-desktop platforms
+// import 'package:window_size/window_size.dart'; // This package is used to manipulate window size on desktop platforms
 
 void main() {
-  runApp(const MyApp());
+  // Ensures that Flutter has fully initialized before running the app. This is necessary for some setup operations.
+  WidgetsFlutterBinding.ensureInitialized(); 
+
+  // Check if the app is running on a desktop platform (Windows, Linux, macOS)
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+    // setupWindow(); // Commented out: This function would be used to configure the window size on desktop platforms
+  }
+
+  // Run the app and use ChangeNotifierProvider to provide AgeCounter to the entire app.
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => AgeCounter(), // Creates an instance of AgeCounter and provides it to the app
+      child: const MyApp(), // MyApp is the root widget of the app
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+// Commented out: This function would handle window configuration on desktop platforms
+// void setupWindow() {
+//   setWindowTitle('Age Counter'); // Sets the window title
+//   setWindowMinSize(const Size(360, 640)); // Sets the minimum window size to 360x640 pixels
+//   setWindowMaxSize(const Size(360, 640)); // Sets the maximum window size to 360x640 pixels
+//   getCurrentScreen().then((screen) {
+//     setWindowFrame(Rect.fromCenter(
+//       center: screen!.frame.center,
+//       width: 360,
+//       height: 640,
+//     )); // Centers the window on the screen
+//   });
+// }
 
-  // This widget is the root of your application.
+// AgeCounter class that extends ChangeNotifier to manage state
+// This class holds the current age and provides methods to increment and decrement it.
+class AgeCounter with ChangeNotifier {
+  int age = 7; // Initial age is set to 7
+
+  // Method to increment the age
+  void incrementAge() {
+    age += 1; // Increases the age by 1
+    notifyListeners(); // Notifies all widgets listening to this model about the change in state
+  }
+
+  // Method to decrement the age
+  void decrementAge() {
+    if (age > 0) { // Ensures that age does not go below 0
+      age -= 1; // Decreases the age by 1
+      notifyListeners(); // Notifies all widgets listening to this model about the change in state
+    }
+  }
+}
+
+// MyApp is the root widget of the application
+class MyApp extends StatelessWidget {
+  const MyApp({super.key}); // Default constructor
+
   @override
   Widget build(BuildContext context) {
+    // Returns the MaterialApp widget which sets up the app's theme and routes
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Age Counter', // The title of the app, displayed in the task switcher
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        primarySwatch: Colors.blue, // The app's theme color
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(), // The default route of the app, which points to MyHomePage
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+// MyHomePage is the main screen of the app where the age counter is displayed
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key}); // Default constructor
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    // Scaffold provides the basic structure for the app screen, including an app bar and body
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('Age Counter'), // AppBar title displayed at the top of the screen
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+        // Center widget to center its child widgets vertically and horizontally
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+          mainAxisAlignment: MainAxisAlignment.center, // Vertically centers the children in the column
+          children: [
+            // Consumer widget listens to changes in the AgeCounter model and rebuilds when the model changes
+            Consumer<AgeCounter>(
+              builder: (context, ageCounter, child) => Text(
+                'I am ${ageCounter.age} years old', // Display the current age using the ageCounter model
+                style: const TextStyle(
+                  fontSize: 32, // Sets the font size to 32 for emphasis
+                  fontWeight: FontWeight.bold, // Makes the text bold
+                ),
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            const SizedBox(height: 20), // Adds a space of 20 pixels between the text and the buttons
+            // Button to increase the age
+            ElevatedButton(
+              onPressed: () {
+                var ageCounter = context.read<AgeCounter>(); // Accesses the AgeCounter model
+                ageCounter.incrementAge(); // Calls the incrementAge method to increase the age
+              },
+              child: const Text('Increase Age'), // Text displayed on the button
+            ),
+            const SizedBox(height: 10), // Adds a space of 10 pixels between the two buttons
+            // Button to decrease the age
+            ElevatedButton(
+              onPressed: () {
+                var ageCounter = context.read<AgeCounter>(); // Accesses the AgeCounter model
+                ageCounter.decrementAge(); // Calls the decrementAge method to decrease the age
+              },
+              child: const Text('Reduce Age'), // Text displayed on the button
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
